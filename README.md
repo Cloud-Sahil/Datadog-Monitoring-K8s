@@ -86,3 +86,49 @@ Ex. aws eks update-kubeconfig --name k8s
 ```sh
 kubectl cluster-info
 ```
+### Write Pod.Yaml File
+```sh
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: my-app
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+```
+### Apply Pod.Yaml
+```sh
+kubectl apply -f pod.yaml
+```
+### Write Svc.Yaml
+```sh
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-lb-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+```
+### Apply Svc.Yaml
+```sh
+kubectl apply -f svc.yaml
+```
+### Check Pods
+```sh
+kubectl get pods
+```
+### Check Svc
+```sh
+kubectl get svc
+```
