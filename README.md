@@ -32,3 +32,57 @@ sudo -i
 ~~~sh
 apt update
 ~~~
+
+###  Install kubectl 
+#### Download the latest release with the command
+```sh
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+
+#### Validate the binary
+```sh
+ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+```
+
+#### Validate the kubectl binary against the checksum file 
+```sh
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+```
+
+#### Install kubectl
+```sh
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+#### Note: If you do not have root access on the target system, you can still install kubectl to the ~/.local/bin directory:
+```sh
+chmod +x kubectl
+mkdir -p ~/.local/bin
+mv ./kubectl ~/.local/bin/kubectl
+```
+```sh
+kubectl version --client
+```
+
+###  Install AWS CLI on Ubuntu
+```sh
+snap install aws-cli --classic
+```
+
+###  Configure AWS CLI
+
+#### To connect AWS using CLI we have configure AWS user using below command
+```sh
+aws configure
+```
+
+### Log In Into EKS cluster
+```sh
+aws eks update-kubeconfig --name (**EKS Cluster Name**)
+```
+Ex. aws eks update-kubeconfig --name k8s
+
+### Check Cluster Information
+```sh
+kubectl cluster-info
+```
