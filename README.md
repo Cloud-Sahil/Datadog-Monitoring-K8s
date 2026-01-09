@@ -6,7 +6,7 @@ This guide shows how to correctly install Datadog on Amazon EKS and collect NGIN
 # Prerequisites
 Make sure you have:
 
-- EC2 
+- EC2  (c7i-flex.large)
 - Create EKS cluster
     - Add Eks Nodes 
 - Aws configure
@@ -137,4 +137,108 @@ kubectl get pods
 ### Check Svc
 ```sh
 kubectl get svc
+```
+
+### Helm Installation
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+### verify
+```sh
+helm version
+```
+###  Create Datadog Namespace & Secrets
+```sh
+kubectl create namespace datadog
+```
+###  Create API Key secret
+```sh
+kubectl create secret generic datadog-secret \
+  --from-literal=api-key=<YOUR_DATADOG_API_KEY> \
+  -n datadog
+```
+
+### Create Application Key secret (REQUIRED)
+ This step is mandatory.
+Missing this causes CreateContainerConfigError in datadog-cluster-agent.
+```sh
+kubectl create secret generic datadog-app-secret \
+  --from-literal=app-key=<YOUR_DATADOG_APP_KEY> \
+  -n datadog
+```
+
+### Add Datadog Helm Repository
+```sh
+helm repo add datadog https://helm.datadoghq.com
+helm repo update
+```
+### Create Helm Values File (datadog-values.yaml)
+ This file is clean, non-duplicated, and non-deprecated.
+```yaml
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  appKeyExistingSecret: datadog-app-secret
+  site: datadoghq.com            # change only if EU or US3
+  clusterName: my-eks-cluster
+
+  logs:
+    enabled: true
+    containerCollectAll: true
+
+  apm:
+    portEnabled: true
+
+  processAgent:
+    enabled: true
+    processCollectionEnabled: true
+
+  orchestratorExplorer:
+    enabled: true
+
+clusterAgent:
+  enabled: true
+  replicas: 2
+  pdb:
+    create: true
+
+agent:
+  containerLogs:
+    enabled: true
+```
+
+### Install Datadog Using Helm
+```sh
+helm upgrade --install datadog-agent datadog/datadog \
+  -f datadog-values.yaml \
+  -n datadog
+```
+Restart agents to apply config:
+```sh
+kubectl rollout restart daemonset datadog-agent -n datadog
+kubectl rollout restart deployment datadog-agent-cluster-agent -n datadog
+```
+### Verify Datadog Installation
+```
+kubectl get pods -n datadog
+```
+Expected output:
+```sql
+datadog-agent-xxxxx                2/2 Running
+datadog-agent-cluster-agent        1/1 Running
+datadog-agent-operator             1/1 Running
+```
+
+If you see CreateContainerConfigError, re-check:
+
+- datadog-app-secret
+- key name is exactly app-key
+- secret exists in datadog namespace
+
+---
+### Cleanup (Optional)
+```sh
+helm uninstall datadog-agent -n datadog
+kubectl delete deployment nginx
+kubectl delete service nginx
+kubectl delete namespace datadog
 ```
