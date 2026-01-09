@@ -235,7 +235,7 @@ If you see CreateContainerConfigError, re-check:
 - secret exists in datadog namespace
 
 ---
-Datadog -- Infrastructure -- kubernetes overview 
+# Datadog -- Infrastructure -- kubernetes overview 
 
 ---
 ### Cleanup (Optional)
