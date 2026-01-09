@@ -88,6 +88,9 @@ kubectl cluster-info
 ```
 ### Write Pod.Yaml File
 ```sh
+nano pod.yaml
+```
+```sh
 apiVersion: v1
 kind: Pod
 metadata:
@@ -106,6 +109,9 @@ spec:
 kubectl apply -f pod.yaml
 ```
 ### Write Svc.Yaml
+```sh
+nano svc.yaml
+```
 ```sh
 apiVersion: v1
 kind: Service
